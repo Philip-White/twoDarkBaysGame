@@ -155,7 +155,11 @@ class level1 extends Phaser.Scene{
   //  Input Events
   cursors = this.input.keyboard.createCursorKeys();
 
-
+this.input.keyboard.on("keyup", function(b){
+  if(b.key == 'b'){
+    this.scene.start('menu');
+  }
+}, this);
 
   }
 
