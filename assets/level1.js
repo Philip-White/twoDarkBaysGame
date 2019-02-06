@@ -1,4 +1,3 @@
-
 let donuts;
 let donutLayer;
 let player;
@@ -30,6 +29,9 @@ class level1 extends Phaser.Scene{
   }
 
   create() {
+    this.cameras.main.fadeIn(3000);
+
+    let coinScore = 0;
 
     function collectCoin(player, coin){
         coin.destroy(coin.x, coin.y); // remove the tile/coin
@@ -37,6 +39,19 @@ class level1 extends Phaser.Scene{
         text.setText(`Donuts: ${coinScore}x`); // set the text to show the current score
         return false;
     }
+/*
+function walkingOnAir(){
+  const theVelocity = player.body.velocity.clone();
+
+  if(theVelocity.x === 0){
+if(player.anims.play('right', true)){
+  player.anims.play('turn', true);
+}else if(player.anims.play('left', true)){
+  player.anims.play('turnLeft', true);
+}
+  }
+}
+*/
 
     const map = this.make.tilemap({ key: "liquor" });
 
@@ -65,7 +80,6 @@ class level1 extends Phaser.Scene{
 
   */
   donuts = this.physics.add.staticGroup()
-
   //here we go through each tile in the donutLayer, giving its x and y coordinates, and scaling it to the right size.
   donutLayer.forEach(function hey(object){
       let obj = donuts.create(object.x, object.y, "donut");
@@ -74,6 +88,7 @@ class level1 extends Phaser.Scene{
          obj.body.width = object.width;
          obj.body.height = object.height;
   });
+
 
 
   /*to limit the movement of the player and the camera..  works with the camera const below */
@@ -92,7 +107,6 @@ class level1 extends Phaser.Scene{
   player.setFrame(9);
 
   this.physics.add.collider(player, ground);
-  this.physics.add.collider(player, items);
   this.physics.add.overlap(player, donuts, collectCoin, null, this);
   let text = this.add.text(570, 70, `Donuts: ${coinScore}x`, {
         fontSize: '20px',
@@ -150,6 +164,20 @@ class level1 extends Phaser.Scene{
     frameRate: 20
   });
 
+  function touching(){
+    const prevVelocity = player.body.velocity.clone();
+    if(prevVelocity > 0){
+      player.anims.play('turn', true);
+    }
+    else if(prevVelocity < 0){
+      player.anims.play('turnLeft', true);
+    }
+
+  }
+
+  this.physics.add.collider(player, items);
+
+
 
 
   //  Input Events
@@ -166,7 +194,24 @@ this.input.keyboard.on("keyup", function(b){
 
   update(time, delta){
 
+
+
+
+
     const prevVelocity = player.body.velocity.clone();
+
+    function walkingOnAir(){
+      const theVelocity = player.body.velocity.clone();
+
+      if(theVelocity.x === 0){
+    if(prevVelocity.x > 0){
+      player.anims.play('turn', true);
+    }else if(prevVelocity.x < 0){
+      player.anims.play('turnLeft', true);
+    }
+      }
+    }
+
 
     if(cursors.left.isDown)
     {
@@ -190,7 +235,9 @@ this.input.keyboard.on("keyup", function(b){
           player.anims.play('rightJump', true);
         }
     }
+
     else {
+
       player.setVelocityX(0);
 
       if(prevVelocity.x > 0){
