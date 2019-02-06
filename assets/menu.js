@@ -18,7 +18,7 @@ this.text = this.add.text(280,500, "Press Enter To Start", {font: "30px impact",
 /*this is another way to use the keys on the keyboard.  https://www.youtube.com/watch?v=7cpZ5Y7THmo&t=763s
 quicker so you don't have to make the update funcion as well.
 */
-this.cameras.main.fadeIn(3000);
+this.cameras.main.fadeIn(1000);
 
 
 this.cameras.main.on('camerafadeoutcomplete', function () {
@@ -29,7 +29,7 @@ this.cameras.main.on('camerafadeoutcomplete', function () {
 
 this.input.keyboard.on('keyup', function(e){
   if(e.key == "Enter"){
-     this.cameras.main.fade(3000);
+     this.cameras.main.fade(1000);
   }
 }, this);
 

@@ -19,7 +19,7 @@ class level1 extends Phaser.Scene{
    this.load.image("spritesheetBush2", "../assets/tilesets/spritesheetBush2.png");
    this.load.image("spritesheetGoods2", "../assets/tilesets/spritesheetGoods2.png");
    this.load.image("donut", "../assets/tilesets/donut.png");
-
+this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png");
    this.load.spritesheet("theHorse", "../assets/tilesets/theHorse.png", { frameWidth: 103, frameHeight: 62 });
    this.load.tilemapTiledJSON("liquor", "../assets/tilemaps/liquor.json");
     // Runs once, loads up assets like images and audio
@@ -59,7 +59,7 @@ if(player.anims.play('right', true)){
     // Runs once, after all assets in preload are loaded
   const tileset = map.addTilesetImage("bg2", "bg2");
 
-  const tileset1 = map.addTilesetImage("spritesheetGoods2", "spritesheetGoods2");
+  const tileset1 = map.addTilesetImage("tiles_spritesheet", "tiles_spritesheet");
 
   const tileset2 = map.addTilesetImage("spritesheetBush2", "spritesheetBush2");
 
@@ -79,7 +79,7 @@ if(player.anims.play('right', true)){
 
 
   */
-  donuts = this.physics.add.staticGroup()
+  donuts = this.physics.add.staticGroup();
   //here we go through each tile in the donutLayer, giving its x and y coordinates, and scaling it to the right size.
   donutLayer.forEach(function hey(object){
       let obj = donuts.create(object.x, object.y, "donut");
@@ -97,7 +97,7 @@ if(player.anims.play('right', true)){
       this.physics.world.bounds.height = map.heightInPixels;
 
   //this makes sure to make the player collide with certain tiles defined inside tiled..
-  ground.setCollisionByProperty({ collides: true });
+  ground.setCollisionByProperty({collides: true});
 
   items.setCollisionByProperty({collides: true});
 
@@ -119,12 +119,9 @@ if(player.anims.play('right', true)){
   player.setCollideWorldBounds(true);
 
 
-
   const camera = this.cameras.main;
     camera.startFollow(player);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-
-
   //  Our player animations, turning, walking left and walking right.
   this.anims.create({
       key: 'left',
