@@ -36,13 +36,12 @@ this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png")
     function collectCoin(player, coin){
         coin.destroy(coin.x, coin.y); // remove the tile/coin
         coinScore ++; // increment the score
-        text.setText(`Donuts: ${coinScore}x`); // set the text to show the current score
+        text.setText(`Donuts Total: ${coinScore}x`); // set the text to show the current score
         return false;
     }
 /*
 function walkingOnAir(){
   const theVelocity = player.body.velocity.clone();
-
   if(theVelocity.x === 0){
 if(player.anims.play('right', true)){
   player.anims.play('turn', true);
@@ -74,10 +73,7 @@ if(player.anims.play('right', true)){
   donutLayer = map.getObjectLayer('Tile Layer 4')['objects'];
 
   /*https://medium.com/@alizah.lalani/collecting-objects-in-phaser-3-platformer-games-using-tiled-4e9298cbfc85
-
   this is a link to a tutorial on how to setup your coin tiles or in my  case the donuts, as collectable.
-
-
   */
   donuts = this.physics.add.staticGroup();
   //here we go through each tile in the donutLayer, giving its x and y coordinates, and scaling it to the right size.
@@ -103,14 +99,14 @@ if(player.anims.play('right', true)){
 
 
   // The player and its settings
-  player = this.physics.add.sprite(100, 50, 'theHorse');
+  player = this.physics.add.sprite(100, 400, 'theHorse');
   player.setFrame(9);
 
   this.physics.add.collider(player, ground);
   this.physics.add.overlap(player, donuts, collectCoin, null, this);
-  let text = this.add.text(570, 70, `Donuts: ${coinScore}x`, {
-        fontSize: '20px',
-        fill: 'black'
+  let text = this.add.text(570, 70, `Donuts Total: ${coinScore}x`, {
+        font: '22px Arvo',
+        fill: 'black',
       });
       text.setScrollFactor(0);
 

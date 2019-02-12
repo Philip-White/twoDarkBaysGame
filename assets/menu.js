@@ -14,7 +14,7 @@ class menu extends Phaser.Scene{
 create (){
   this.add.image(400,300, "woodenFloor").setScale(.3);
   this.add.image(400, 300, "Two-Dark-BaysWhiteBG").setScale(.7);
-this.text = this.add.text(280,500, "Press Enter To Start", {font: "30px impact", color: "black"});
+this.text = this.add.text(246,500, "Press Enter To Start", {font: "30px Arvo", color: "black"});
 /*this is another way to use the keys on the keyboard.  https://www.youtube.com/watch?v=7cpZ5Y7THmo&t=763s
 quicker so you don't have to make the update funcion as well.
 */
