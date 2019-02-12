@@ -17,7 +17,6 @@ class level1 extends Phaser.Scene{
   preload(){
    this.load.image("bg2", "../assets/tilesets/bg2.png");
    this.load.image("spritesheetBush2", "../assets/tilesets/spritesheetBush2.png");
-   this.load.image("spritesheetGoods2", "../assets/tilesets/spritesheetGoods2.png");
    this.load.image("donut", "../assets/tilesets/donut.png");
 this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png");
    this.load.spritesheet("theHorse", "../assets/tilesets/theHorse.png", { frameWidth: 103, frameHeight: 62 });
