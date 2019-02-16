@@ -5,8 +5,12 @@ let controls;
 let cursors;
 let coinScore = 0;
 let text;
-
-
+let railLayer;
+let rails;
+let lives = 3;
+let life1;
+let life2;
+let life3;
 
 class level1 extends Phaser.Scene{
   constructor () {
@@ -15,6 +19,7 @@ class level1 extends Phaser.Scene{
 
 
   preload(){
+    this.load.image("rail", "../assets/tilesets/fence.png")
    this.load.image("bg2", "../assets/tilesets/bg2.png");
    this.load.image("spritesheetBush2", "../assets/tilesets/spritesheetBush2.png");
    this.load.image("donut", "../assets/tilesets/donut.png");
@@ -30,25 +35,30 @@ this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png")
   create() {
     this.cameras.main.fadeIn(3000);
 
-    let coinScore = 0;
 
     function collectCoin(player, coin){
         coin.destroy(coin.x, coin.y); // remove the tile/coin
         coinScore ++; // increment the score
-        text.setText(`Donuts Total: ${coinScore}x`); // set the text to show the current score
+        text.setText(`Hack Snack Total: ${coinScore}x`); // set the text to show the current score
         return false;
     }
+
+
+
+
+    function railConnect(player, rails){
+
+      this.cameras.main.flash();
+this.scene.start('level1');
+lives--;
+
+    }
 /*
-function walkingOnAir(){
-  const theVelocity = player.body.velocity.clone();
-  if(theVelocity.x === 0){
-if(player.anims.play('right', true)){
-  player.anims.play('turn', true);
-}else if(player.anims.play('left', true)){
-  player.anims.play('turnLeft', true);
-}
-  }
-}
+    this.cameras.main.on('camerafadeoutcomplete', function () {
+
+      this.scene.start("level1");
+
+    }, this);
 */
 
     const map = this.make.tilemap({ key: "liquor" });
@@ -63,6 +73,8 @@ if(player.anims.play('right', true)){
 
   const tileset3 = map.addTilesetImage("donut", "donut");
 
+  const tileset4 = map.addTilesetImage("rail", "rail");
+
   const sky = map.createStaticLayer("Tile Layer 1", tileset, 0, 0);
 
   const ground = map.createStaticLayer("Tile Layer 2", tileset1, 0, 0);
@@ -70,6 +82,7 @@ if(player.anims.play('right', true)){
   const items = map.createStaticLayer("Tile Layer 3", tileset2, 0, 0);
 
   donutLayer = map.getObjectLayer('Tile Layer 4')['objects'];
+
 
   /*https://medium.com/@alizah.lalani/collecting-objects-in-phaser-3-platformer-games-using-tiled-4e9298cbfc85
   this is a link to a tutorial on how to setup your coin tiles or in my  case the donuts, as collectable.
@@ -94,7 +107,22 @@ if(player.anims.play('right', true)){
   //this makes sure to make the player collide with certain tiles defined inside tiled..
   ground.setCollisionByProperty({collides: true});
 
-  items.setCollisionByProperty({collides: true});
+  let bomb = this.physics.add.staticGroup();
+  bomb.create(355, 390, 'rail').setScale(.85).refreshBody();
+  bomb.create(735, 390, 'rail').setScale(.85).refreshBody();
+  bomb.create(1432, 295, 'rail').setScale(.85).refreshBody();
+  bomb.create(2296, 390, 'rail').setScale(.85).refreshBody();
+
+/*These are the 3 horses representing your lives left in the top left corner of  the screen*/
+
+life1 = this.add.image(20, 25, 'theHorse').setScale(.5).setScrollFactor(0);
+life1.setFrame(9);
+
+life2 = this.add.image(55, 25, 'theHorse').setScale(.5).setScrollFactor(0);
+life2.setFrame(9);
+
+life3 = this.add.image(90, 25, 'theHorse').setScale(.5).setScrollFactor(0);
+life3.setFrame(9);
 
 
   // The player and its settings
@@ -103,16 +131,16 @@ if(player.anims.play('right', true)){
 
   this.physics.add.collider(player, ground);
   this.physics.add.overlap(player, donuts, collectCoin, null, this);
-  let text = this.add.text(570, 70, `Donuts Total: ${coinScore}x`, {
+  let text = this.add.text(130, 20, `Hack Snack Total: ${coinScore}x`, {
         font: '22px Arvo',
         fill: 'black',
       });
       text.setScrollFactor(0);
 
+
   //  Player physics properties. Give the little guy a slight bounce.
   //player.setBounce(0.2);
   player.setCollideWorldBounds(true);
-
 
   const camera = this.cameras.main;
     camera.startFollow(player);
@@ -156,18 +184,13 @@ if(player.anims.play('right', true)){
     frameRate: 20
   });
 
-  function touching(){
-    const prevVelocity = player.body.velocity.clone();
-    if(prevVelocity > 0){
-      player.anims.play('turn', true);
-    }
-    else if(prevVelocity < 0){
-      player.anims.play('turnLeft', true);
-    }
 
-  }
-
+/*
   this.physics.add.collider(player, items);
+
+
+*/
+
 
 
 
@@ -181,12 +204,41 @@ this.input.keyboard.on("keyup", function(b){
   }
 }, this);
 
+this.physics.add.collider(player, bomb, railConnect, null, this);
+this.physics.add.collider(bomb, ground);
+
   }
 
 
   update(time, delta){
 
+    if (donuts.countActive(true) === 0){
+      donutLayer.forEach(function hey(object){
+          let obj = donuts.create(object.x, object.y, "donut");
+             obj.setScale(object.width/32, object.height/32);
+             obj.setOrigin(0);
+             obj.body.width = object.width;
+             obj.body.height = object.height;
+      });
 
+    }
+
+
+
+if(lives === 2){
+  life1.destroy(true, true);
+}
+if(lives === 1){
+  life1.destroy(true, true);
+  life2.destroy(true, true);
+}
+if(lives === 0){
+  life3.destroy(true, true);
+  life2.destroy(true, true);
+  life1.destroy(true, true);
+  location.reload();
+
+}
 
 
 
