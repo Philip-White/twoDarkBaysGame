@@ -11,6 +11,8 @@ let lives = 3;
 let life1;
 let life2;
 let life3;
+let timer = 3;
+
 
 class level1 extends Phaser.Scene{
   constructor () {
@@ -46,13 +48,16 @@ this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png")
 
 
 
-    function railConnect(player, rails){
+function railConnect(player, rails){
 
       this.cameras.main.flash();
-this.scene.start('level1');
-lives--;
+var body = player.body;
+      body.reset(player.x, player.y + -60);
+      player.setVelocityY(-260);
 
-    }
+
+lives--;
+}
 /*
     this.cameras.main.on('camerafadeoutcomplete', function () {
 
@@ -204,7 +209,7 @@ this.input.keyboard.on("keyup", function(b){
   }
 }, this);
 
-this.physics.add.collider(player, bomb, railConnect, null, this);
+var platformCollider = this.physics.add.collider(player, bomb, railConnect, null, this);
 this.physics.add.collider(bomb, ground);
 
   }
