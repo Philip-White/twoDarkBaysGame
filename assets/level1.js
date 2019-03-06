@@ -1,3 +1,4 @@
+
 let donuts;
 let donutLayer;
 let player;
@@ -12,6 +13,13 @@ let life1;
 let life2;
 let life3;
 let timer = 3;
+let map;
+let leftButton;
+let rightButton;
+let jumpButton;
+let camera;
+let movingRight = false;
+
 
 
 class level1 extends Phaser.Scene{
@@ -26,6 +34,9 @@ class level1 extends Phaser.Scene{
    this.load.image("spritesheetBush2", "../assets/tilesets/spritesheetBush2.png");
    this.load.image("donut", "../assets/tilesets/donut.png");
 this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png");
+this.load.image("left", "../assets/tilesets/left.png");
+this.load.image("right", "../assets/tilesets/right.png");
+this.load.image("jump", "../assets/tilesets/jump.png");
    this.load.spritesheet("theHorse", "../assets/tilesets/theHorse.png", { frameWidth: 103, frameHeight: 62 });
    this.load.tilemapTiledJSON("liquor", "../assets/tilemaps/liquor.json");
     // Runs once, loads up assets like images and audio
@@ -33,22 +44,37 @@ this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png")
 
 
   }
+/*
+here is where stuff is created...
+*/
+
 
   create() {
     this.cameras.main.fadeIn(3000);
 
 
+
+
+
+
+/*
+collectCoin function works with data from tiled and collects the cookies/donuts in the game
+*/
     function collectCoin(player, coin){
+
         coin.destroy(coin.x, coin.y); // remove the tile/coin
         coinScore ++; // increment the score
         text.setText(`Hack Snack Total: ${coinScore}x`); // set the text to show the current score
         return false;
     }
 
+/*
+railConnect is what happens whenever the player comes in contact
+with one of the rails or "fences" in the game
+*/
 
 
-
-function railConnect(player, rails){
+function railConnect(player){
 
       this.cameras.main.flash();
 var body = player.body;
@@ -58,12 +84,18 @@ var body = player.body;
 
 lives--;
 }
+
+function create() {
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Earlier code omitted
+}
+
+
+
 /*
-    this.cameras.main.on('camerafadeoutcomplete', function () {
-
-      this.scene.start("level1");
-
-    }, this);
+this brings in all the assets and the map
 */
 
     const map = this.make.tilemap({ key: "liquor" });
@@ -112,11 +144,19 @@ lives--;
   //this makes sure to make the player collide with certain tiles defined inside tiled..
   ground.setCollisionByProperty({collides: true});
 
-  let bomb = this.physics.add.staticGroup();
-  bomb.create(355, 390, 'rail').setScale(.85).refreshBody();
-  bomb.create(735, 390, 'rail').setScale(.85).refreshBody();
-  bomb.create(1432, 295, 'rail').setScale(.85).refreshBody();
-  bomb.create(2296, 390, 'rail').setScale(.85).refreshBody();
+  /*
+here is where I started the buttons for controlling at the bottom of the screen.
+  */
+
+this.leftButton = this.add.sprite(50, 500, 'left').setScale(.30).setScrollFactor(0).setInteractive();
+
+
+this.jumpButton = this.add.sprite(750, 500, 'jump').setScale(.30).setScrollFactor(0).setInteractive();
+
+  let rails = this.physics.add.staticGroup();
+  rails.create(900, 390, 'rail').setScale(.85).refreshBody();
+  rails.create(1432, 295, 'rail').setScale(.85).refreshBody();
+  rails.create(1900, 390, 'rail').setScale(.85).refreshBody();
 
 /*These are the 3 horses representing your lives left in the top left corner of  the screen*/
 
@@ -135,7 +175,7 @@ life3.setFrame(9);
   player.setFrame(9);
 
   this.physics.add.collider(player, ground);
-  this.physics.add.overlap(player, donuts, collectCoin, null, this);
+this.physics.add.overlap(player, donuts, collectCoin, null, this);
   let text = this.add.text(130, 20, `Hack Snack Total: ${coinScore}x`, {
         font: '22px Arvo',
         fill: 'black',
@@ -147,9 +187,16 @@ life3.setFrame(9);
   //player.setBounce(0.2);
   player.setCollideWorldBounds(true);
 
+/*
+Here we start the camera.  Bounds have been removed for
+infinite scrolling
+*/
   const camera = this.cameras.main;
-    camera.startFollow(player);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+  this.cameras.main.removeBounds();
+
+
+
   //  Our player animations, turning, walking left and walking right.
   this.anims.create({
       key: 'left',
@@ -190,17 +237,9 @@ life3.setFrame(9);
   });
 
 
-/*
-  this.physics.add.collider(player, items);
 
 
-*/
-
-
-
-
-
-  //  Input Events
+  //  Input Events this one is for returning to the menu
   cursors = this.input.keyboard.createCursorKeys();
 
 this.input.keyboard.on("keyup", function(b){
@@ -209,26 +248,65 @@ this.input.keyboard.on("keyup", function(b){
   }
 }, this);
 
-var platformCollider = this.physics.add.collider(player, bomb, railConnect, null, this);
-this.physics.add.collider(bomb, ground);
+
+/*
+controls for the buttons...
+*/
+
+
+
+this.leftButton.on('pointerdown', function (event){
+
+  movingRight = true;
+
+}, this);
+this.jumpButton.on('pointerdown', function (event){
+  if (player.body.onFloor())
+  {
+    player.setVelocityY(-280);
+  }
+});
+
+
+
+
+
+/*
+here we identify what happens when certain objects in the game collide
+*/
+this.physics.add.collider(player, rails, railConnect, null, this);
+this.physics.add.collider(rails, ground);
 
   }
 
 
+/*
+the update function starts here
+*/
+
   update(time, delta){
 
-    if (donuts.countActive(true) === 0){
-      donutLayer.forEach(function hey(object){
-          let obj = donuts.create(object.x, object.y, "donut");
-             obj.setScale(object.width/32, object.height/32);
-             obj.setOrigin(0);
-             obj.body.width = object.width;
-             obj.body.height = object.height;
-      });
-
-    }
+//handles the camera to make the game look like it is scrolling over and over
 
 
+if(this.cameras.main.scrollX >= 2000){
+  this.cameras.main.setScroll(0, this.cameras.main.scrollY)
+  var body = player.body;
+        body.reset(110, player.y)
+
+//makes all the coins or "donuts" reappear for the next lap
+
+        donutLayer.forEach(function hey(object){
+            let obj = donuts.create(object.x, object.y, "donut");
+               obj.setScale(object.width/32, object.height/32);
+               obj.setOrigin(0);
+               obj.body.width = object.width;
+               obj.body.height = object.height;
+        });
+}
+
+
+//this updates the lives you have left in the top left of the screen in gameplay
 
 if(lives === 2){
   life1.destroy(true, true);
@@ -245,36 +323,29 @@ if(lives === 0){
 
 }
 
-
+//here starts the direction the horse is looking and the conrols for the horse
 
     const prevVelocity = player.body.velocity.clone();
 
-    function walkingOnAir(){
-      const theVelocity = player.body.velocity.clone();
-
-      if(theVelocity.x === 0){
-    if(prevVelocity.x > 0){
-      player.anims.play('turn', true);
-    }else if(prevVelocity.x < 0){
-      player.anims.play('turnLeft', true);
-    }
-      }
-    }
 
 
-    if(cursors.left.isDown)
-    {
 
-        player.setVelocityX(-160);
+    if(cursors.left.isDown){
 
-        player.anims.play('left', true);
+
+
+
+        player.anims.play('turnLeft', true);
+
 
         if (!player.body.onFloor()){
-          player.anims.play('leftJump', true);
+          player.anims.play('turnLeft', true);
         }
+
     }
-    else if (cursors.right.isDown)
+    else if (cursors.right.isDown || movingRight)
     {
+      this.cameras.main.scrollX = player.x - 100;
 
         player.setVelocityX(160);
 
