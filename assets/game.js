@@ -12,7 +12,7 @@ pixelArt: true,
   physics: {
     default: 'arcade',
     arcade:{
-      gravity: {y : 350}
+      gravity: {y : 325}
     }
   },
   scene: [ menu, level1 ]

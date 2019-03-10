@@ -3,7 +3,7 @@ let donuts;
 let donutLayer;
 let player;
 let controls;
-let cursors;
+let cursorKeys;
 let coinScore = 0;
 let text;
 let railLayer;
@@ -14,11 +14,10 @@ let life2;
 let life3;
 let timer = 3;
 let map;
-let leftButton;
-let rightButton;
 let jumpButton;
 let camera;
-let movingRight = false;
+let joystick;
+let cursors;
 
 
 
@@ -26,9 +25,68 @@ class level1 extends Phaser.Scene{
   constructor () {
     super({key:"level1"});
   }
-
+  dumpJoyStickState(){
+          cursorKeys = this.joyStick.createCursorKeys();
+  }
 
   preload(){
+/* this loading function was derived from a lesson found on this website...
+https://gamedevacademy.org/creating-a-preloading-screen-in-phaser-3/
+*/
+
+    var progressBar = this.add.graphics();
+              var progressBox = this.add.graphics();
+              progressBox.fillStyle(0x222222, 0.8);
+              progressBox.fillRect(240, 270, 320, 50);
+
+              var width = this.cameras.main.width;
+              var height = this.cameras.main.height;
+              var loadingText = this.make.text({
+                  x: width / 2,
+                  y: height / 2 - 50,
+                  text: 'Loading...',
+                  style: {
+                      font: '20px Arvo',
+                      fill: '#ffffff'
+                  }
+              });
+              loadingText.setOrigin(0.5, 0.5);
+
+              var percentText = this.make.text({
+                  x: width / 2,
+                  y: height / 2 - 5,
+                  text: '0%',
+                  style: {
+                      font: '18px Arvo',
+                      fill: '#ffffff'
+                  }
+              });
+              percentText.setOrigin(0.5, 0.5);
+
+
+
+
+
+                         this.load.on('progress', function (value) {
+                             percentText.setText(parseInt(value * 100) + '%');
+                             progressBar.clear();
+                             progressBar.fillStyle(0xffffff, 1);
+                             progressBar.fillRect(250, 280, 300 * value, 30);
+                         });
+
+
+
+                         this.load.on('complete', function () {
+                             progressBar.destroy();
+                             progressBox.destroy();
+                             loadingText.destroy();
+                             percentText.destroy();
+                         });
+
+
+
+
+
     this.load.image("rail", "../assets/tilesets/fence.png")
    this.load.image("bg2", "../assets/tilesets/bg2.png");
    this.load.image("spritesheetBush2", "../assets/tilesets/spritesheetBush2.png");
@@ -41,6 +99,10 @@ this.load.image("jump", "../assets/tilesets/jump.png");
    this.load.tilemapTiledJSON("liquor", "../assets/tilemaps/liquor.json");
     // Runs once, loads up assets like images and audio
 
+    var url;
+
+            url = 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/plugins/dist/rexvirtualjoystickplugin.min.js';
+            this.load.plugin('rexvirtualjoystickplugin', url, true);
 
 
   }
@@ -85,12 +147,7 @@ var body = player.body;
 lives--;
 }
 
-function create() {
-    window.addEventListener('resize', resize);
-    resize();
 
-    // Earlier code omitted
-}
 
 
 
@@ -148,10 +205,9 @@ this brings in all the assets and the map
 here is where I started the buttons for controlling at the bottom of the screen.
   */
 
-this.leftButton = this.add.sprite(50, 500, 'left').setScale(.30).setScrollFactor(0).setInteractive();
 
 
-this.jumpButton = this.add.sprite(750, 500, 'jump').setScale(.30).setScrollFactor(0).setInteractive();
+this.jumpButton = this.add.sprite(700, 500, 'jump').setScale(.30).setScrollFactor(0).setInteractive();
 
   let rails = this.physics.add.staticGroup();
   rails.create(900, 390, 'rail').setScale(.85).refreshBody();
@@ -160,23 +216,26 @@ this.jumpButton = this.add.sprite(750, 500, 'jump').setScale(.30).setScrollFacto
 
 /*These are the 3 horses representing your lives left in the top left corner of  the screen*/
 
-life1 = this.add.image(20, 25, 'theHorse').setScale(.5).setScrollFactor(0);
+life1 = this.add.image(60, 55, 'theHorse').setScale(.5).setScrollFactor(0);
 life1.setFrame(9);
 
-life2 = this.add.image(55, 25, 'theHorse').setScale(.5).setScrollFactor(0);
+life2 = this.add.image(105, 55, 'theHorse').setScale(.5).setScrollFactor(0);
 life2.setFrame(9);
 
-life3 = this.add.image(90, 25, 'theHorse').setScale(.5).setScrollFactor(0);
+life3 = this.add.image(150, 55, 'theHorse').setScale(.5).setScrollFactor(0);
 life3.setFrame(9);
+
+this.input.addPointer(2);
+
 
 
   // The player and its settings
-  player = this.physics.add.sprite(100, 400, 'theHorse');
+  player = this.physics.add.sprite(120, 400, 'theHorse');
   player.setFrame(9);
 
   this.physics.add.collider(player, ground);
 this.physics.add.overlap(player, donuts, collectCoin, null, this);
-  let text = this.add.text(130, 20, `Hack Snack Total: ${coinScore}x`, {
+  let text = this.add.text(200, 45, `Hack Snack Total: ${coinScore}x`, {
         font: '22px Arvo',
         fill: 'black',
       });
@@ -192,6 +251,7 @@ Here we start the camera.  Bounds have been removed for
 infinite scrolling
 */
   const camera = this.cameras.main;
+  camera.setZoom(1.12);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
   this.cameras.main.removeBounds();
 
@@ -236,11 +296,23 @@ infinite scrolling
     frameRate: 20
   });
 
+  this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+                  x: 100,
+                  y: 500,
+                  radius: 100,
+                  base: this.add.graphics().fillStyle(0x888888).fillCircle(0, 0, 25),
+                  thumb: this.add.graphics().fillStyle(0xcccccc).fillCircle(0, 0,10),
+                  dir: 1,   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
+                  // forceMin: 16,
+                  // enable: true
+              })
 
+              .on('update', this.dumpJoyStickState, this);
+
+                      this.dumpJoyStickState();
 
 
   //  Input Events this one is for returning to the menu
-  cursors = this.input.keyboard.createCursorKeys();
 
 this.input.keyboard.on("keyup", function(b){
   if(b.key == 'b'){
@@ -255,11 +327,7 @@ controls for the buttons...
 
 
 
-this.leftButton.on('pointerdown', function (event){
 
-  movingRight = true;
-
-}, this);
 this.jumpButton.on('pointerdown', function (event){
   if (player.body.onFloor())
   {
@@ -267,6 +335,8 @@ this.jumpButton.on('pointerdown', function (event){
   }
 });
 
+
+cursors = this.input.keyboard.createCursorKeys();
 
 
 
@@ -330,8 +400,9 @@ if(lives === 0){
 
 
 
-    if(cursors.left.isDown){
+    if(cursorKeys.left.isDown || cursors.left.isDown){
 
+      player.setVelocityX(0);
 
 
 
@@ -343,9 +414,9 @@ if(lives === 0){
         }
 
     }
-    else if (cursors.right.isDown || movingRight)
+    else if (cursorKeys.right.isDown || cursors.right.isDown)
     {
-      this.cameras.main.scrollX = player.x - 100;
+      this.cameras.main.scrollX = player.x - 120;
 
         player.setVelocityX(160);
 
@@ -364,15 +435,15 @@ if(lives === 0){
         player.anims.play('turn', true);
       }else if(prevVelocity.x < 0){
         player.anims.play('turnLeft', true);
-      }else if(!cursors.isDown && !player.body.onFloor() && prevVelocity.x > 0){
+      }else if(!cursorKeys.isDown && !player.body.onFloor() && prevVelocity.x > 0){
         player.anims.play('turn', true);
-      }else if(!cursors.isDown && !player.body.onFloor() && prevVelocity.x < 0){
+      }else if(!cursorKeys.isDown && !player.body.onFloor() && prevVelocity.x < 0){
         player.anims.play('turnLeft', true);
       }
   }
 
 
-    if (cursors.up.isDown && player.body.onFloor())
+    if (cursorKeys.up.isDown || cursors.up.isDown && player.body.onFloor())
     {
 
         player.setVelocityY(-280);
