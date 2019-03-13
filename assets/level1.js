@@ -92,8 +92,7 @@ https://gamedevacademy.org/creating-a-preloading-screen-in-phaser-3/
    this.load.image("spritesheetBush2", "../assets/tilesets/spritesheetBush2.png");
    this.load.image("donut", "../assets/tilesets/donut.png");
 this.load.image("tiles_spritesheet", "../assets/tilesets/tiles_spritesheet.png");
-this.load.image("left", "../assets/tilesets/left.png");
-this.load.image("right", "../assets/tilesets/right.png");
+
 this.load.image("jump", "../assets/tilesets/jump.png");
    this.load.spritesheet("theHorse", "../assets/tilesets/theHorse.png", { frameWidth: 103, frameHeight: 62 });
    this.load.tilemapTiledJSON("liquor", "../assets/tilemaps/liquor.json");
@@ -205,9 +204,11 @@ this brings in all the assets and the map
 here is where I started the buttons for controlling at the bottom of the screen.
   */
 
+/*got the button from this website..
+https://opengameart.org/content/free-bubble-game-button-pack
+*/
 
-
-this.jumpButton = this.add.sprite(700, 500, 'jump').setScale(.30).setScrollFactor(0).setInteractive();
+this.jumpButton = this.add.sprite(700, 525, 'jump').setScale(.60).setScrollFactor(0).setInteractive();
 
   let rails = this.physics.add.staticGroup();
   rails.create(900, 390, 'rail').setScale(.85).refreshBody();
@@ -251,7 +252,6 @@ Here we start the camera.  Bounds have been removed for
 infinite scrolling
 */
   const camera = this.cameras.main;
-  camera.setZoom(1.12);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
   this.cameras.main.removeBounds();
 
@@ -298,10 +298,10 @@ infinite scrolling
 
   this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
                   x: 100,
-                  y: 500,
+                  y: 525,
                   radius: 100,
-                  base: this.add.graphics().fillStyle(0x888888).fillCircle(0, 0, 25),
-                  thumb: this.add.graphics().fillStyle(0xcccccc).fillCircle(0, 0,10),
+                  base: this.add.graphics().fillStyle(0xFFC300).fillCircle(0, 0, 50).setAlpha(.65),
+                  thumb: this.add.graphics().fillStyle(0xcccccc).fillCircle(0, 0,30),
                   dir: 1,   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
                   // forceMin: 16,
                   // enable: true
@@ -416,7 +416,7 @@ if(lives === 0){
     }
     else if (cursorKeys.right.isDown || cursors.right.isDown)
     {
-      this.cameras.main.scrollX = player.x - 120;
+      this.cameras.main.scrollX = player.x - 110;
 
         player.setVelocityX(160);
 

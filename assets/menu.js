@@ -53,20 +53,21 @@ class menu extends Phaser.Scene{
                              loadingText.destroy();
                              percentText.destroy();
                          });
+                         this.load.image("slideBack", "../assets/tilesets/slideBack.png");
 
 
-
-    this.load.image("woodenFloor", "../assets/tilesets/woodenFloor.png");
     this.load.image("Two-Dark-BaysWhiteBG", "../assets/tilesets/Two-Dark-BaysWhiteBG.png");
-  }
+      this.load.image("Two-Dark-BaysTransparent", "../assets/tilesets/Two-Dark-BaysTransparent.png");
+}
 
 
 create (){
 
 
-
-  this.add.image(400,300, "woodenFloor").setScale(.3);
-  this.add.image(400, 300, "Two-Dark-BaysWhiteBG").setScale(.7);
+  this.add.image(400, 300, "slideBack").setScale(1.4);
+  this.add.image(400, 300, "Two-Dark-BaysTransparent").setScale(.7);
+/*
+  this.add.image(400, 300, "Two-Dark-BaysWhiteBG").setScale(.7);*/
 this.text = this.add.text(226,500, "Click anywhere to start", {font: "30px Arvo", color: "black"});
 /*this is another way to use the keys on the keyboard.  https://www.youtube.com/watch?v=7cpZ5Y7THmo&t=763s
 quicker so you don't have to make the update funcion as well.
