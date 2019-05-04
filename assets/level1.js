@@ -117,7 +117,6 @@ here is where stuff is created...
 
 
 
-
 /*
 collectCoin function works with data from tiled and collects the cookies/donuts in the game
 */
@@ -136,14 +135,23 @@ with one of the rails or "fences" in the game
 
 
 function railConnect(player){
+if(lives == 3 || lives == 2){
+    this.cameras.main.flash();
 
-      this.cameras.main.flash();
 var body = player.body;
       body.reset(player.x, player.y + -60);
       player.setVelocityY(-260);
 
 
 lives--;
+}else{
+  var body = player.body;
+        body.reset(player.x, player.y + -60);
+        player.setVelocityY(-260);
+
+
+  lives--;
+}
 }
 
 
@@ -336,6 +344,20 @@ this.jumpButton.on('pointerdown', function (event){
 });
 
 
+/*
+this is for jumping the horse on the keyboard.  we use 's' instead of the up arrow key.
+the horse only jumps on keyup!
+*/
+
+this.input.keyboard.on('keyup', function(b){
+  if(b.key == 's' && player.body.onFloor()){
+    player.setVelocityY(-280);
+
+  }
+}, this)
+
+
+
 cursors = this.input.keyboard.createCursorKeys();
 
 
@@ -346,6 +368,7 @@ here we identify what happens when certain objects in the game collide
 */
 this.physics.add.collider(player, rails, railConnect, null, this);
 this.physics.add.collider(rails, ground);
+
 
   }
 
@@ -389,7 +412,14 @@ if(lives === 0){
   life3.destroy(true, true);
   life2.destroy(true, true);
   life1.destroy(true, true);
-  location.reload();
+
+this.scene.pause();
+
+
+
+  this.scene.start('over');
+
+
 
 }
 
@@ -443,7 +473,7 @@ if(lives === 0){
   }
 
 
-    if (cursorKeys.up.isDown || cursors.up.isDown && player.body.onFloor())
+    if (cursorKeys.up.isDown && player.body.onFloor())
     {
 
         player.setVelocityY(-280);

@@ -15,7 +15,7 @@ pixelArt: true,
       gravity: {y : 325}
     }
   },
-  scene: [ menu, level1 ]
+  scene: [ menu, instructions, level1, over ]
 
 };
 

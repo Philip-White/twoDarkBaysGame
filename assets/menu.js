@@ -77,7 +77,7 @@ this.cameras.main.fadeIn(1000);
 
 this.cameras.main.on('camerafadeoutcomplete', function () {
 
-  this.scene.start("level1");
+  this.scene.start("instructions");
 
 }, this);
 
